@@ -1,0 +1,414 @@
+---
+title: "Introduction to Scientific Programming and Simulation 2017"
+author: "Gerhard Nachtmann"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+## Catching up with R: Base R
+
+The code from our catch-up-session can be found in file `2017-06-12.R`,
+the transcript including in- and output is here: `2017-06-12.Rt`.
+
+### Intro
+
+https://www.r-project.org/
+
+https://cran.r-project.org/mirrors.html
+
+
+### Data structures
+
+http://adv-r.had.co.nz/Data-structures.html
+
+#### Homogeneous
+
+1-dimensional:
+
+atomic vector (corresponding `NA`)
+
+  + logical (`NA`)
+  + integer (`NA_integer_`) - special case `factor` (attributes)
+  + double (numeric) (`NA_real_`)
+  + character (`NA_character_`)
+  
+  
+2-dimensional: `matrix`
+
+p-dimensional: `array`
+
+#### Heterogeneous
+
+1-dimensional: `list`
+
+```{r list}
+vector(mode = "list", length = 3)
+```
+
+2-dimensional: `data.frame`
+
+iris, trees
+
+typeof, (mode), length / dim, attributes, class
+
+getwd / setwd
+
+Data I/O: `read.csv`, `write.csv`, `file.path`
+
+help / ?
+
+ls / rm / library
+
+comments #, case sensitive, <-, ==, +, letters
+
+`NULL`, `NA`, `NaN`
+
+round
+
+paste
+
+seq_along(letters)
+
+seq_len(4)
+
+gl
+
+
+### Subsetting / Indexing
+
+`subset()`
+
+`[]`
+
+`%in%`
+
+### functions
+
+vectorization
+
+imperial2metric
+
+### control structures
+
+if
+
+ifelse vectorized
+
+
+### loops
+
+Explicit
+
+  + `for`
+  + `while`
+  
+
+Implicit
+
+`lapply` and friends, which are much faster
+
+inch2cm
+
+paste
+
+```{r loops}
+s1 <- function(x){
+  res <- 0
+  for(i in seq_along(x)){
+    res <- res + x[i]
+  }
+  res
+}
+
+s2 <- function(x){
+  res <- 0
+  i <- 1
+  while(i <= length(x)){
+    res <- res + x[i]
+    i <- i + 1
+  }
+  res
+}
+
+cs1 <- function(x){
+  res <- 0
+  resv <- vector(mode  = "numeric", length = length(x))
+  for(i in seq_along(x)){
+    res <- res + x[i]
+    resv[i] <- res
+  }
+  resv
+}
+
+
+```
+
+
+
+### Your turn: own function in loop
+
+
+
+### tidy data
+
+http://vita.had.co.nz/papers/tidy-data.html
+
+http://blog.rstudio.org/2014/07/22/introducing-tidyr/
+
+### aggregate
+
+with(x, aggregate(v, by = list(group), sum))
+
+### plotting
+
+base R
+
+ggplot2
+
+### data.table
+
+fread
+
+data.table package extends data.frame especially for large data.
+It is quite fast due to optimized code.
+
+https://github.com/Rdatatable/data.table/wiki
+
+Binary search in `data.table`
+
+merge using `[`
+
+The code from our data.table session can be found in file `<date>.R`.
+As usual, the transcript including in- and output is here: `<date>.Rt`.
+
+
+
+## Reproducible research
+
+The source from our reproducibility session can be found in file `Report.Rmd`.
+To create an HTML document as output, just use `make html` from the command line
+or use `rmarkdown::render('Report.Rmd', 'html_document')` within your R-session.
+For the latter ensure, that `Report.Rmd` is in your working directory. Otherwise
+you could use the path to this file within `render`, or set the working directory
+to the directory, where the source file is stored.
+As usual, the transcript including in- and output is here: `<date>.Rt`.
+
+Reader: http://kbroman.org/steps2rr/
+
+Make reports using [knitr](http://yihui.name/knitr).
+
+Formatting with [RMarkdown](http://rmarkdown.rstudio.com/).
+
+Write code and text in one document to produce final output including graphics.
+
+Features:
+
++ Lists
++ emphasize font
+    + **bold** (\*\*)
+    + *italics* (\*)
+    + ~~strikethrough~~ (\~\~)
++ Links
+
+Links:
+
+https://nicercode.github.io/guides/reports/
+
+https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
+
+R-Chunks
+
++ `echo`: show code
++ `eval`: evaluate code
++ `fig`: show figure
++ insert chunk in RStudio: Ctrl+Alt+i
++ inline chunk in backticks with `r`
+
+`purl("document.Rmd")` extracts R-code
+
+Include `ggplot` e.g.
+```{r eval = FALSE}
+ggplot(iris, aes(x = Sepal.Length, y = Petal.Length, col = Petal.Width)) +
+  geom_point() + geom_smooth(method = "lm") + facet_wrap(~Species)
+```
+
+
+## R-packages
+
+[Book by Hadley](http://r-pkgs.had.co.nz/)
+
+library(devtools)
+
+Package structure
+
+### Documentation using roxygen.
+
+https://cran.r-project.org/web/packages/roxygen2/vignettes/roxygen2.html
+
+library(roxygen2)
+
+Tools - Project options - Build tools
+
+Ctrl+Shift+Alt+R
+
+In cpp file:
+```
+//' @export
+// [[Rcpp::export]]
+```
+
+In any R file
+
+```
+#' @importFrom Rcpp evalCpp
+#' @useDynLib <packagename>
+```
+
+The R-Package can be built within RStudio or using the commandline (e.g. to implement it in a Makefile):
+
+```{r, engine="bash", RCMD, eval=FALSE}
+R CMD build firstpackage
+R CMD check firstpackage_0.1.0.tar.gz
+```
+If you want to make it online available for other users, create a
+github repository, then add remote origin to local repository:
+
+```{r, engine="bash", gitremote, eval=FALSE}
+git remote add origin https://github.com/nachti/firstpackage.git
+```
+
+If you forked my package to your own Github account, then you have to change
+the username to be able to add and commit and push changes:
+
+```{r, engine="bash", gitremotownuser, eval=FALSE}
+git remote add origin https://github.com/<youruser>/firstpackage.git
+git pull origin master # get updates from upstream
+git push origin master # put your changes online
+```
+
+The package can be found in its own repository here:
+https://github.com/nachti/firstpackage
+
+It can be installed using
+```{r instfpkg, eval=FALSE}
+devtools::install_github("nachti/firstpackage")
+```
+
+
+## Batch mode, makefile, version control
+
+R CMD build
+
+R CMD check
+
+Reader: http://kbroman.org/minimal_make/
+
+### Git
+
+https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup
+
+```{r, engine="bash", gitconf, eval=FALSE}
+git config --global user.name "John Doe"
+git config --global user.email johndoe@example.com
+git config --global core.editor emacs
+```
+
+http://r-pkgs.had.co.nz/git.html
+
+First clone the Repository:
+
+```{r, engine="bash", git1, eval=FALSE}
+git clone https://github.com/nachti/ISPS16.git
+git pull origin master # if something changed
+```
+
+### use Makefile
+
+Make documentation using [pandoc](http://pandoc.org/):
+```{r, engine="bash", make1, eval=FALSE}
+make html # just produce html
+make # produces pdf, html, docx
+```
+
+Make pdf etc. from Report.Rmd:
+```{r, engine="bash", makereport, eval=FALSE}
+make FILE=Report
+```
+
+### Rscript
+
+Create R Script `i2cm.R` and tell the system, where Rscript is living:
+
+```{r Rscript, eval=FALSE}
+#!/usr/bin/Rscript
+### first line tells your system where *Rscript* is located
+library(firstpackage)
+example("inch2cm")
+```
+
+Make it executable for everyone using `chmod 755 i2cm.R` and use it in dfferent ways:
+
+```{r, engine="bash", rscriptexamples, eval=FALSE}
+Rscript i2cm.R # works even if i2cm.R is not made executable
+./i2cm.R # send output to console
+R CMD BATCH i2cm.R # send input and output to file i2cm.Rout
+nohup ./i2cm.R & # send output to nohup.out
+nohup ./i2cm.R > log.out & # send output to log.out
+```
+
+If you use `nohup ./i2cm.R > log.out &` to run your script, it's possible to logoff the system while the calculations are done.
+
+### Hints for Mac users
+
+Ensure that pandoc is installed.
+Possibly R, pandoc etc. are not exported, so
+create the file `.bash_profile ` in your home directory:
+
+```{r, engine="bash", mac, eval=FALSE}
+touch ~/.bash_profile 
+```
+
+Open it using any texteditor and add the following lines:
+
+```{r, engine="bash", mac_bp, eval=FALSE}
+export PATH=$PATH:/Library/Frameworks/R.framework/Resources/bin
+export PATH=$PATH:/Applications/RStudio.app/Contents/MacOS/pandoc
+```
+
+## shiny
+
+You can find the code of our shiny session in the `shiny` folder in this repository.
+
+### some links
+
+http://shiny.rstudio.com/
+
+http://shiny.rstudio.com/tutorial/
+
+[Shiny tutorial by Dean Attall](http://deanattali.com/blog/building-shiny-apps-tutorial/)
+
+[Shiny tutorial by Paul Hiemstra](http://stcorp.nl/R_course/tutorial_shiny.html)
+
+https://github.com/rstudio/shiny-examples
+
+http://shiny.rstudio.com/gallery/
+
+https://www.r-bloggers.com/building-shiny-apps-an-interactive-tutorial/
+
+[drinkR](https://gallery.shinyapps.io/drinkr/)
+
+[Shiny Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2016/01/shiny-cheatsheet.pdf)
+
+### ui
+
+sidebarPanel
+
+  + selectInput
+  + checkboxInput
+  + radioButtons
+  + sliderInput
+
+### server
+
+R-code for output
+
