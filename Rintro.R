@@ -266,3 +266,19 @@ library(ggplot2)
 ggplot(iris, aes(x = Sepal.Length, y = Petal.Length)) + 
   geom_point(aes(col = Species))
 
+ggplot(iris, aes(x = Sepal.Length, y = Petal.Length)) + 
+  geom_point(aes(col = Species)) + geom_smooth()
+
+## 1 model
+ggplot(iris, aes(x = Sepal.Length, y = Petal.Length)) + 
+  geom_point(aes(col = Species)) + geom_smooth(method = "lm")
+
+
+### 3 models
+ggplot(iris, aes(x = Sepal.Length, y = Petal.Length)) + 
+  geom_point(aes(col = Species)) +
+  geom_smooth(aes(col = Species))
+
+ggplot(iris, aes(x = Sepal.Length, y = Petal.Length, 
+                 col = Species)) + 
+  geom_point() + geom_smooth(method = "lm")
