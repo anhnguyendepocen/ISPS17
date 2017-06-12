@@ -5,13 +5,13 @@
 ### logical vector
 lv <- c(TRUE, TRUE, FALSE, rep(TRUE, 7))
 # lv[7:9] <- c(FALSE, FALSE)
-mode(lv)
+typeof(lv)
 sum(lv)
 sum(lv)/length(lv)
 
 ### integer
 iv <- c(2L, 5L, as.integer(seq(2, 16, by = 2)))
-mode(iv)
+typeof(iv)
 1:7
 is.integer(iv)
 ?seq()
@@ -39,6 +39,8 @@ typeof(cv)
 quality <- factor(c("A", "B", "A", "C", "C", "A", "C", "C"),
                   levels = c("C", "B", "A"),
                   ordered = TRUE)
+
+##### coffee now #####
 
 ### combine it
 t1 <- c(cv, iv)
@@ -70,13 +72,6 @@ l2[["x"]]
 l2[[1]]
 names(l2)
 
-##### ? #####
-
-### Questions
-## Komma = .
-2.5
-## list workspace: ls()
-ls()
 
 ### Your turn: create a list l3 where 
 ### x is a vector from 1 to 15 and
@@ -87,7 +82,6 @@ l3
 
 list(x = seq(1, 15), y = rev(1:10))
 rev(letters)
-unlist(l1[-1])
 
 ### data.frame
 length(iv)
@@ -97,11 +91,15 @@ stopifnot(length(iv) == length(cv))
 df1 <- data.frame(x = iv, y = cv,
                   stringsAsFactors = FALSE)
 df1
+df1f <- data.frame(x = iv, y = cv)
+str(df1f)
 cv[2] <- "x"
 cv
 df1
 df1[2, 2]
 str(df1)
+head(df1)
+tail(df1, 3)
 
 df2 <- data.frame(iv, cv, dv, lv)
 df2
@@ -109,7 +107,7 @@ str(df2)
 df2[2:3, 2]
 df2[5, 2:4]
 df2[5, ]
-df2[ ,2]
+df2[, 2]
 df2[-5, ]
 df2[6, 2]
 names(df2)
@@ -149,12 +147,52 @@ length(c(t4, iv))
 c(NA, iv)
 length(c(NA, iv))
 
+### remove some objects
+rm(t1, t2, t4)
+ls()
+
+### Data I/O
+getwd()
+setwd("../")
+getwd()
+setwd("ISPS17")
+file.path("lehre", "ISPS17")
+
 ##### Afternoon
+getwd()
+data(iris)
+head(iris)
+str(iris)
+summary(iris)
+setwd("../../")
+getwd()
+write.csv(iris, file = file.path("lehre", "ISPS17",
+                                 "iris.csv"),
+          row.names = FALSE)
+getwd()
+?write.csv
+setwd(file.path("lehre", "ISPS17"))
+getwd()
+
+iriscsv <- read.csv("iris.csv")
+ls()
+str(iriscsv)
+all.equal(iris, iriscsv)
+
+quality
 quality < "B"
+sum(quality < "B")
+quality[quality < "B"]
+iv[1:8][quality < "B"]
+
+head(df2)
 subset(df2, cv == "b")
+subset(df2, cv %in% c("b", "h"))
 subset(df2, iv > 8)
 subset(df2, lv)
 df2[!lv, ]
+rm(lv)
+df2[!df2$lv, ]
 
 seq(0, 20, by = 0.5)
 round(seq(0, 20, by = 0.5))
@@ -166,6 +204,8 @@ round(digits = 2, x = rnorm(10))
 ceiling(seq(0, 20, by = 0.5))
 ceiling(325.3)
 floor(seq(0, 20, by = 0.5))
+round(325.4, -2)
+round(325.4, -1)
 
 paste(cv, 3)
 paste(cv, 3, sep = "-")
@@ -175,12 +215,16 @@ paste0("run", 1:10)
 paste0("b", 0:5, collapse = "+")
 
 seq_along(cv)
+seq_along(NULL)
+1:NULL
 seq_len(5)
 seq_len(length(cv)) # redundant
 
 ### functions
 summary(df2) # generic
+class(df2$cv)
 unclass(df2$cv)
+?factor
 
 2^(0:10)
 (1:10)*4
@@ -196,16 +240,16 @@ foo1 <- function(x){
   cat(paste("Hello", x, "\n"))
 }
 
-foo1("Haleh")
+foo1("Greyson")
 foo1(4)
 foo1(1:4)
-foo1(c("Laura", "Haleh"))
+foo1(c("Kjartan", "Sofia"))
 
-foo2 <- function(x = "Ruben"){
+foo2 <- function(x = "Aadi"){
   writeLines(paste0("Hello ", x, "!"))
 }
 
-foo2(c("Laura", "Haleh"))
+foo2(c("Kjartan", "Sofia"))
 foo2()
 
 ### 1 inch = 2.54 cm
@@ -219,13 +263,15 @@ inch2cm <- function(x){
   res
 }
 
+inch2cm(1)
 inch2cm(1:10)
 # inch2cm("a")
 
 data(trees)
-trees[,1]
-inch2cm(trees[,1])
-trees$Girth_cm <- inch2cm(trees[,1])
+str(trees)
+trees[, 1]
+inch2cm(trees[, 1])
+trees$Girth_cm <- inch2cm(trees[, 1])
 head(trees)
 
 ### loops
@@ -252,11 +298,16 @@ s2 <- function(x){
 
 s2(3:4)
 
+### implicit loops
 lapply(l1, length)
 lapply(l1[2:3], mean)
 unlist(lapply(l1[2:3], mean))
 sapply(l1[2:3], mean)
 lapply(l1[2:3], inch2cm)
+ls()
+rm(list = ls())
+ls()
+
 
 ### plotting
 X11()

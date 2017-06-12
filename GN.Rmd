@@ -375,6 +375,13 @@ export PATH=$PATH:/Library/Frameworks/R.framework/Resources/bin
 export PATH=$PATH:/Applications/RStudio.app/Contents/MacOS/pandoc
 ```
 
+If `devtools::install_github` doesn't work (Could not find build
+tools necessary to build ...), try
+```{r mac_devtools, eval=FALSE}
+options(buildtools.check = function(action) TRUE)
+```
+See also https://stackoverflow.com/questions/38725060/error-could-not-find-build-tools-necessary-to-build-stringi-when-trying-devto
+
 ## shiny
 
 You can find the code of our shiny session in the `shiny` folder in this repository.
