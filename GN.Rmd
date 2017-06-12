@@ -193,6 +193,11 @@ you could use the path to this file within `render`, or set the working director
 to the directory, where the source file is stored.
 As usual, the transcript including in- and output is here: `<date>.Rt`.
 
+
+Example of a presentation:
+
+https://github.com/jimhester/presentations/tree/master/2017_01_13-RStudio_conf-Database_Best_Practices
+
 Reader: http://kbroman.org/steps2rr/
 
 Make reports using [knitr](http://yihui.name/knitr).
