@@ -1,8 +1,12 @@
 ---
 title: "Report"
 author: "Gerhard Nachtmann"
-date: "13 June 2017"
-output: html_document
+# date: '`r Sys.Date()`'
+date: '2017-06-13'
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -34,6 +38,7 @@ List
 3. output
     1. pdf
     2. HTML
+    3. dashboard
     2. word
 
 This is Text. This word is **bold**. And here there is one printed in *italics*.
@@ -51,7 +56,7 @@ https://github.com/nachti/ISPS17/
 
 [ISPS Github Repository](https://github.com/nachti/ISPS17/)
 
-```{r header, eval=TRUE, echo=FALSE}
+```{r header, eval=TRUE, echo=FALSE, message=FALSE}
 library(ggplot2)
 ```
 
@@ -85,7 +90,8 @@ Visualize iris data.
 
 ```{r irisplot1, echo=FALSE}
 ggplot(iris, aes(x = Sepal.Length, y = Petal.Length,
-                 col = Species)) + geom_point() + geom_smooth()
+                 col = Species)) + geom_point() +
+  geom_smooth(method = "loess")
 ```
 
 ```{r irisplot2, echo=FALSE}

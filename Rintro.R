@@ -311,14 +311,21 @@ ls()
 
 ### plotting
 X11()
+with(iris, plot(Petal.Length ~ Sepal.Length))
 with(iris, plot(Petal.Length ~ Sepal.Length, col = Species))
 
 library(ggplot2)
 ggplot(iris, aes(x = Sepal.Length, y = Petal.Length)) + 
+  geom_point()
+ggplot(iris, aes(x = Sepal.Length, y = Petal.Length)) + 
   geom_point(aes(col = Species))
+
+ggplot(iris, aes(x = Sepal.Length, y = Petal.Length,
+                 col = Species)) + geom_point()
 
 ggplot(iris, aes(x = Sepal.Length, y = Petal.Length)) + 
   geom_point(aes(col = Species)) + geom_smooth()
+
 
 ## 1 model
 ggplot(iris, aes(x = Sepal.Length, y = Petal.Length)) + 
@@ -330,6 +337,25 @@ ggplot(iris, aes(x = Sepal.Length, y = Petal.Length)) +
   geom_point(aes(col = Species)) +
   geom_smooth(aes(col = Species))
 
+## the same
+ggplot(iris, aes(x = Sepal.Length, y = Petal.Length,
+                 col = Species)) + 
+  geom_point() + geom_smooth()
+
 ggplot(iris, aes(x = Sepal.Length, y = Petal.Length, 
                  col = Species)) + 
   geom_point() + geom_smooth(method = "lm")
+
+ggplot(iris, aes(x = Sepal.Length, y = Petal.Length, 
+                 col = Species)) + 
+  geom_point() + geom_smooth(method = "gam")
+getwd()
+ggsave("irisspecmodel.pdf")
+ggsave("irisspecmodel.pdf", width = 15, height = 10,
+       units = "cm")
+ggsave("irisspecmodel.png", width = 15, height = 10,
+       units = "cm", dpi = 600)
+
+pdf("irisplot_base.pdf")
+with(iris, plot(Petal.Length ~ Sepal.Length, col = Species))
+dev.off()

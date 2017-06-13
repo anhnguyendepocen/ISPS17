@@ -1,0 +1,42 @@
+\documentclass[a4paper, 12pt]{article}
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+% haperref has to be loaded as last package
+\usepackage[pdftex, colorlinks, linkcolor=blue, urlcolor=blue,
+citecolor=blue, pagecolor=blue, breaklinks=true]{hyperref}
+
+\title{\LaTeX{}-Report}
+\author{Gerhard Nachtmann}
+\date{2017-06-13}
+
+\begin{document}
+\maketitle
+
+<<opts, include=FALSE, echo=FALSE>>=
+library(knitr)
+opts_chunk$set(
+  tidy = TRUE,
+  background="white"
+)
+options(width = 55, str = strOptions(strict.width = "cut",
+                                     digits = 4))
+@
+
+\section{Iris data}
+
+Text here.
+
+<<>>=
+data(iris)
+str(iris)
+@
+
+<<eval=FALSE>>=
+1:10
+lm(y ~ x, data = test)
+@
+
+\end{document}
