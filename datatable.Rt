@@ -1,0 +1,949 @@
+
+R version 3.3.3 (2017-03-06) -- "Another Canoe"
+Copyright (C) 2017 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R ist freie Software und kommt OHNE JEGLICHE GARANTIE.
+Sie sind eingeladen, es unter bestimmten Bedingungen weiter zu verbreiten.
+Tippen Sie 'license()' or 'licence()' für Details dazu.
+
+R ist ein Gemeinschaftsprojekt mit vielen Beitragenden.
+Tippen Sie 'contributors()' für mehr Information und 'citation()',
+um zu erfahren, wie R oder R packages in Publikationen zitiert werden können.
+
+Tippen Sie 'demo()' für einige Demos, 'help()' für on-line Hilfe, oder
+'help.start()' für eine HTML Browserschnittstelle zur Hilfe.
+Tippen Sie 'q()', um R zu verlassen.
+
+> options(STERM='iESS', str.dendrogram.last="'", editor='emacsclient', show.error.locations=TRUE)
+> ##### R-Script for data.table introduction
+> ##### Gerhard Nachtmann
+> ##### 20170613
+> ### data.table example
+> library(data.table)
+data.table 1.10.4
+  The fastest way to learn (by data.table authors): https://www.datacamp.com/courses/data-analysis-the-data-table-way
+  Documentation: ?data.table, example(data.table) and browseVignettes("data.table")
+  Release notes, videos and slides: http://r-datatable.com
+> library(microbenchmark)
+> data(iris)
+> head(iris)
+  Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+1          5.1         3.5          1.4         0.2  setosa
+2          4.9         3.0          1.4         0.2  setosa
+3          4.7         3.2          1.3         0.2  setosa
+4          4.6         3.1          1.5         0.2  setosa
+5          5.0         3.6          1.4         0.2  setosa
+6          5.4         3.9          1.7         0.4  setosa
+> str(iris)
+'data.frame':	150 obs. of  5 variables:
+ $ Sepal.Length: num  5.1 4.9 4.7 4.6 5 5.4 4.6 5 4.4 4.9 ...
+ $ Sepal.Width : num  3.5 3 3.2 3.1 3.6 3.9 3.4 3.4 2.9 3.1 ...
+ $ Petal.Length: num  1.4 1.4 1.3 1.5 1.4 1.7 1.4 1.5 1.4 1.5 ...
+ $ Petal.Width : num  0.2 0.2 0.2 0.2 0.2 0.4 0.3 0.2 0.2 0.1 ...
+ $ Species     : Factor w/ 3 levels "setosa","versicolor",..: 1 1 1 1 1 1 1 1 1 1 ...
+> class(iris)
+[1] "data.frame"
+> ## create data.table object
+> idt <- as.data.table(iris)
+> idt
+     Sepal.Length Sepal.Width Petal.Length Petal.Width   Species
+  1:          5.1         3.5          1.4         0.2    setosa
+  2:          4.9         3.0          1.4         0.2    setosa
+  3:          4.7         3.2          1.3         0.2    setosa
+  4:          4.6         3.1          1.5         0.2    setosa
+  5:          5.0         3.6          1.4         0.2    setosa
+ ---                                                            
+146:          6.7         3.0          5.2         2.3 virginica
+147:          6.3         2.5          5.0         1.9 virginica
+148:          6.5         3.0          5.2         2.0 virginica
+149:          6.2         3.4          5.4         2.3 virginica
+150:          5.9         3.0          5.1         1.8 virginica
+> class(idt)
+[1] "data.table" "data.frame"
+> ### output
+> getwd()
+[1] "/home/tux/Dokumente/lehre/ISPS17"
+> fwrite(idt, "iris.csv")
+> idtcsv <- fread("iris.csv", stringsAsFactors = TRUE)
+> head(idtcsv)
+   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+1:          5.1         3.5          1.4         0.2  setosa
+2:          4.9         3.0          1.4         0.2  setosa
+3:          4.7         3.2          1.3         0.2  setosa
+4:          4.6         3.1          1.5         0.2  setosa
+5:          5.0         3.6          1.4         0.2  setosa
+6:          5.4         3.9          1.7         0.4  setosa
+> all.equal(idt, idtcsv)
+[1] TRUE
+> class(idtcsv)
+[1] "data.table" "data.frame"
+> class(as.data.frame(idtcsv))
+[1] "data.frame"
+> idt1 <- copy(idt)
+> idt2 <- idt1
+> names(idt2)
+[1] "Sepal.Length" "Sepal.Width"  "Petal.Length" "Petal.Width"  "Species"     
+> idt2[, Species := NULL]
+> head(idt2)
+   Sepal.Length Sepal.Width Petal.Length Petal.Width
+1:          5.1         3.5          1.4         0.2
+2:          4.9         3.0          1.4         0.2
+3:          4.7         3.2          1.3         0.2
+4:          4.6         3.1          1.5         0.2
+5:          5.0         3.6          1.4         0.2
+6:          5.4         3.9          1.7         0.4
+> head(idt1) # also removed here
+   Sepal.Length Sepal.Width Petal.Length Petal.Width
+1:          5.1         3.5          1.4         0.2
+2:          4.9         3.0          1.4         0.2
+3:          4.7         3.2          1.3         0.2
+4:          4.6         3.1          1.5         0.2
+5:          5.0         3.6          1.4         0.2
+6:          5.4         3.9          1.7         0.4
+> head(idt)
+   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+1:          5.1         3.5          1.4         0.2  setosa
+2:          4.9         3.0          1.4         0.2  setosa
+3:          4.7         3.2          1.3         0.2  setosa
+4:          4.6         3.1          1.5         0.2  setosa
+5:          5.0         3.6          1.4         0.2  setosa
+6:          5.4         3.9          1.7         0.4  setosa
+> ## values in inch
+> idt[, .SD / 2.54, .SDcols = setdiff(names(idt), "Species")]
+     Sepal.Length Sepal.Width Petal.Length Petal.Width
+  1:     2.007874    1.377953    0.5511811  0.07874016
+  2:     1.929134    1.181102    0.5511811  0.07874016
+  3:     1.850394    1.259843    0.5118110  0.07874016
+  4:     1.811024    1.220472    0.5905512  0.07874016
+  5:     1.968504    1.417323    0.5511811  0.07874016
+ ---                                                  
+146:     2.637795    1.181102    2.0472441  0.90551181
+147:     2.480315    0.984252    1.9685039  0.74803150
+148:     2.559055    1.181102    2.0472441  0.78740157
+149:     2.440945    1.338583    2.1259843  0.90551181
+150:     2.322835    1.181102    2.0078740  0.70866142
+> ### https://stackoverflow.com/questions/31326691/apply-function-across-subset-of-columns-in-data-table-with-sdcols
+> idt1 <- copy(idt)
+> valcols <- setdiff(names(idt1), "Species")
+> idt1[, (valcols) := (.SD / 2.54), .SDcols = valcols]
+> head(idt1)
+   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+1:     2.007874    1.377953    0.5511811  0.07874016  setosa
+2:     1.929134    1.181102    0.5511811  0.07874016  setosa
+3:     1.850394    1.259843    0.5118110  0.07874016  setosa
+4:     1.811024    1.220472    0.5905512  0.07874016  setosa
+5:     1.968504    1.417323    0.5511811  0.07874016  setosa
+6:     2.125984    1.535433    0.6692913  0.15748031  setosa
+> idt1 <- copy(idt)
+> paste(valcols, "inch", sep = "_")
+[1] "Sepal.Length_inch" "Sepal.Width_inch"  "Petal.Length_inch"
+[4] "Petal.Width_inch" 
+> idt1[, (paste(valcols, "inch", sep = "_")) :=
++        (.SD / 2.54), .SDcols = valcols]
+> head(idt1)
+   Sepal.Length Sepal.Width Petal.Length Petal.Width Species Sepal.Length_inch
+1:          5.1         3.5          1.4         0.2  setosa          2.007874
+2:          4.9         3.0          1.4         0.2  setosa          1.929134
+3:          4.7         3.2          1.3         0.2  setosa          1.850394
+4:          4.6         3.1          1.5         0.2  setosa          1.811024
+5:          5.0         3.6          1.4         0.2  setosa          1.968504
+6:          5.4         3.9          1.7         0.4  setosa          2.125984
+   Sepal.Width_inch Petal.Length_inch Petal.Width_inch
+1:         1.377953         0.5511811       0.07874016
+2:         1.181102         0.5511811       0.07874016
+3:         1.259843         0.5118110       0.07874016
+4:         1.220472         0.5905512       0.07874016
+5:         1.417323         0.5511811       0.07874016
+6:         1.535433         0.6692913       0.15748031
+> str(idt1)
+Classes ‘data.table’ and 'data.frame':	150 obs. of  9 variables:
+ $ Sepal.Length     : num  5.1 4.9 4.7 4.6 5 5.4 4.6 5 4.4 4.9 ...
+ $ Sepal.Width      : num  3.5 3 3.2 3.1 3.6 3.9 3.4 3.4 2.9 3.1 ...
+ $ Petal.Length     : num  1.4 1.4 1.3 1.5 1.4 1.7 1.4 1.5 1.4 1.5 ...
+ $ Petal.Width      : num  0.2 0.2 0.2 0.2 0.2 0.4 0.3 0.2 0.2 0.1 ...
+ $ Species          : Factor w/ 3 levels "setosa","versicolor",..: 1 1 1 1 1 1 1 1 1 1 ...
+ $ Sepal.Length_inch: num  2.01 1.93 1.85 1.81 1.97 ...
+ $ Sepal.Width_inch : num  1.38 1.18 1.26 1.22 1.42 ...
+ $ Petal.Length_inch: num  0.551 0.551 0.512 0.591 0.551 ...
+ $ Petal.Width_inch : num  0.0787 0.0787 0.0787 0.0787 0.0787 ...
+ - attr(*, ".internal.selfref")=<externalptr> 
+> ## some counting
+> idt[, .N, by = Species]
+      Species  N
+1:     setosa 50
+2: versicolor 50
+3:  virginica 50
+> idt[, .N]
+[1] 150
+> idt$Species
+  [1] setosa     setosa     setosa     setosa     setosa     setosa    
+  [7] setosa     setosa     setosa     setosa     setosa     setosa    
+ [13] setosa     setosa     setosa     setosa     setosa     setosa    
+ [19] setosa     setosa     setosa     setosa     setosa     setosa    
+ [25] setosa     setosa     setosa     setosa     setosa     setosa    
+ [31] setosa     setosa     setosa     setosa     setosa     setosa    
+ [37] setosa     setosa     setosa     setosa     setosa     setosa    
+ [43] setosa     setosa     setosa     setosa     setosa     setosa    
+ [49] setosa     setosa     versicolor versicolor versicolor versicolor
+ [55] versicolor versicolor versicolor versicolor versicolor versicolor
+ [61] versicolor versicolor versicolor versicolor versicolor versicolor
+ [67] versicolor versicolor versicolor versicolor versicolor versicolor
+ [73] versicolor versicolor versicolor versicolor versicolor versicolor
+ [79] versicolor versicolor versicolor versicolor versicolor versicolor
+ [85] versicolor versicolor versicolor versicolor versicolor versicolor
+ [91] versicolor versicolor versicolor versicolor versicolor versicolor
+ [97] versicolor versicolor versicolor versicolor virginica  virginica 
+[103] virginica  virginica  virginica  virginica  virginica  virginica 
+[109] virginica  virginica  virginica  virginica  virginica  virginica 
+[115] virginica  virginica  virginica  virginica  virginica  virginica 
+[121] virginica  virginica  virginica  virginica  virginica  virginica 
+[127] virginica  virginica  virginica  virginica  virginica  virginica 
+[133] virginica  virginica  virginica  virginica  virginica  virginica 
+[139] virginica  virginica  virginica  virginica  virginica  virginica 
+[145] virginica  virginica  virginica  virginica  virginica  virginica 
+Levels: setosa versicolor virginica
+> ## data.frame style
+> idt$val <- rnorm(nrow(idt))
+> idt
+     Sepal.Length Sepal.Width Petal.Length Petal.Width   Species         val
+  1:          5.1         3.5          1.4         0.2    setosa -0.41188653
+  2:          4.9         3.0          1.4         0.2    setosa -1.66270639
+  3:          4.7         3.2          1.3         0.2    setosa -0.04793171
+  4:          4.6         3.1          1.5         0.2    setosa -0.12834774
+  5:          5.0         3.6          1.4         0.2    setosa  0.28998432
+ ---                                                                        
+146:          6.7         3.0          5.2         2.3 virginica -2.03610328
+147:          6.3         2.5          5.0         1.9 virginica -0.53270253
+148:          6.5         3.0          5.2         2.0 virginica  0.12320829
+149:          6.2         3.4          5.4         2.3 virginica -2.15637523
+150:          5.9         3.0          5.1         1.8 virginica  0.65067618
+> ## data.table style
+> idt[, group := rep(letters[1:5], each = 30)]
+> idt
+     Sepal.Length Sepal.Width Petal.Length Petal.Width   Species         val
+  1:          5.1         3.5          1.4         0.2    setosa -0.41188653
+  2:          4.9         3.0          1.4         0.2    setosa -1.66270639
+  3:          4.7         3.2          1.3         0.2    setosa -0.04793171
+  4:          4.6         3.1          1.5         0.2    setosa -0.12834774
+  5:          5.0         3.6          1.4         0.2    setosa  0.28998432
+ ---                                                                        
+146:          6.7         3.0          5.2         2.3 virginica -2.03610328
+147:          6.3         2.5          5.0         1.9 virginica -0.53270253
+148:          6.5         3.0          5.2         2.0 virginica  0.12320829
+149:          6.2         3.4          5.4         2.3 virginica -2.15637523
+150:          5.9         3.0          5.1         1.8 virginica  0.65067618
+     group
+  1:     a
+  2:     a
+  3:     a
+  4:     a
+  5:     a
+ ---      
+146:     e
+147:     e
+148:     e
+149:     e
+150:     e
+> ## "-" means decreasing order
+> setorder(idt, Sepal.Length, -Sepal.Width)
+> idt
+     Sepal.Length Sepal.Width Petal.Length Petal.Width   Species         val
+  1:          4.3         3.0          1.1         0.1    setosa  0.81876799
+  2:          4.4         3.2          1.3         0.2    setosa -0.47021429
+  3:          4.4         3.0          1.3         0.2    setosa  1.49644152
+  4:          4.4         2.9          1.4         0.2    setosa -1.85413384
+  5:          4.5         2.3          1.3         0.3    setosa -1.30264157
+ ---                                                                        
+146:          7.7         3.8          6.7         2.2 virginica -0.97776153
+147:          7.7         3.0          6.1         2.3 virginica -0.43606655
+148:          7.7         2.8          6.7         2.0 virginica  1.16575671
+149:          7.7         2.6          6.9         2.3 virginica  1.16095591
+150:          7.9         3.8          6.4         2.0 virginica -0.05739282
+     group
+  1:     a
+  2:     b
+  3:     b
+  4:     a
+  5:     b
+ ---      
+146:     d
+147:     e
+148:     e
+149:     d
+150:     e
+> ## data.frame style
+> idt[idt$group == "d", ]
+    Sepal.Length Sepal.Width Petal.Length Petal.Width    Species          val
+ 1:          4.9         2.5          4.5         1.7  virginica -0.551557853
+ 2:          5.0         2.3          3.3         1.0 versicolor  0.409649231
+ 3:          5.1         2.5          3.0         1.1 versicolor -0.512049103
+ 4:          5.5         2.6          4.4         1.2 versicolor  0.391806030
+ 5:          5.6         2.7          4.2         1.3 versicolor -1.610240564
+ 6:          5.7         3.0          4.2         1.2 versicolor -1.242094801
+ 7:          5.7         2.9          4.2         1.3 versicolor -0.611237643
+ 8:          5.7         2.8          4.1         1.3 versicolor  0.116088268
+ 9:          5.7         2.5          5.0         2.0  virginica -0.407840867
+10:          5.8         2.8          5.1         2.4  virginica  0.137048129
+11:          5.8         2.7          5.1         1.9  virginica  0.458012309
+12:          5.8         2.6          4.0         1.2 versicolor  0.994659583
+13:          6.0         2.2          5.0         1.5  virginica  0.979264918
+14:          6.1         3.0          4.6         1.4 versicolor  0.539471445
+15:          6.2         2.9          4.3         1.3 versicolor -1.660694635
+16:          6.3         3.3          6.0         2.5  virginica  1.127128446
+17:          6.3         2.9          5.6         1.8  virginica -1.749801870
+18:          6.4         3.2          5.3         2.3  virginica  0.779357700
+19:          6.4         2.7          5.3         1.9  virginica -1.255634218
+20:          6.5         3.2          5.1         2.0  virginica -1.240720259
+21:          6.5         3.0          5.8         2.2  virginica  0.593009206
+22:          6.5         3.0          5.5         1.8  virginica -1.585812245
+23:          6.7         2.5          5.8         1.8  virginica -2.348402390
+24:          6.8         3.0          5.5         2.1  virginica -1.613466402
+25:          7.1         3.0          5.9         2.1  virginica -1.273249174
+26:          7.2         3.6          6.1         2.5  virginica  0.970099845
+27:          7.3         2.9          6.3         1.8  virginica  0.005525608
+28:          7.6         3.0          6.6         2.1  virginica  1.209454121
+29:          7.7         3.8          6.7         2.2  virginica -0.977761533
+30:          7.7         2.6          6.9         2.3  virginica  1.160955912
+    Sepal.Length Sepal.Width Petal.Length Petal.Width    Species          val
+    group
+ 1:     d
+ 2:     d
+ 3:     d
+ 4:     d
+ 5:     d
+ 6:     d
+ 7:     d
+ 8:     d
+ 9:     d
+10:     d
+11:     d
+12:     d
+13:     d
+14:     d
+15:     d
+16:     d
+17:     d
+18:     d
+19:     d
+20:     d
+21:     d
+22:     d
+23:     d
+24:     d
+25:     d
+26:     d
+27:     d
+28:     d
+29:     d
+30:     d
+    group
+> ## data.table style
+> idt[J("d"), on = "group"]
+    Sepal.Length Sepal.Width Petal.Length Petal.Width    Species          val
+ 1:          4.9         2.5          4.5         1.7  virginica -0.551557853
+ 2:          5.0         2.3          3.3         1.0 versicolor  0.409649231
+ 3:          5.1         2.5          3.0         1.1 versicolor -0.512049103
+ 4:          5.5         2.6          4.4         1.2 versicolor  0.391806030
+ 5:          5.6         2.7          4.2         1.3 versicolor -1.610240564
+ 6:          5.7         3.0          4.2         1.2 versicolor -1.242094801
+ 7:          5.7         2.9          4.2         1.3 versicolor -0.611237643
+ 8:          5.7         2.8          4.1         1.3 versicolor  0.116088268
+ 9:          5.7         2.5          5.0         2.0  virginica -0.407840867
+10:          5.8         2.8          5.1         2.4  virginica  0.137048129
+11:          5.8         2.7          5.1         1.9  virginica  0.458012309
+12:          5.8         2.6          4.0         1.2 versicolor  0.994659583
+13:          6.0         2.2          5.0         1.5  virginica  0.979264918
+14:          6.1         3.0          4.6         1.4 versicolor  0.539471445
+15:          6.2         2.9          4.3         1.3 versicolor -1.660694635
+16:          6.3         3.3          6.0         2.5  virginica  1.127128446
+17:          6.3         2.9          5.6         1.8  virginica -1.749801870
+18:          6.4         3.2          5.3         2.3  virginica  0.779357700
+19:          6.4         2.7          5.3         1.9  virginica -1.255634218
+20:          6.5         3.2          5.1         2.0  virginica -1.240720259
+21:          6.5         3.0          5.8         2.2  virginica  0.593009206
+22:          6.5         3.0          5.5         1.8  virginica -1.585812245
+23:          6.7         2.5          5.8         1.8  virginica -2.348402390
+24:          6.8         3.0          5.5         2.1  virginica -1.613466402
+25:          7.1         3.0          5.9         2.1  virginica -1.273249174
+26:          7.2         3.6          6.1         2.5  virginica  0.970099845
+27:          7.3         2.9          6.3         1.8  virginica  0.005525608
+28:          7.6         3.0          6.6         2.1  virginica  1.209454121
+29:          7.7         3.8          6.7         2.2  virginica -0.977761533
+30:          7.7         2.6          6.9         2.3  virginica  1.160955912
+    Sepal.Length Sepal.Width Petal.Length Petal.Width    Species          val
+    group
+ 1:     d
+ 2:     d
+ 3:     d
+ 4:     d
+ 5:     d
+ 6:     d
+ 7:     d
+ 8:     d
+ 9:     d
+10:     d
+11:     d
+12:     d
+13:     d
+14:     d
+15:     d
+16:     d
+17:     d
+18:     d
+19:     d
+20:     d
+21:     d
+22:     d
+23:     d
+24:     d
+25:     d
+26:     d
+27:     d
+28:     d
+29:     d
+30:     d
+    group
+> ### change d to x
+> idt[J("d"), group := "x", on = "group"]
+> idt
+     Sepal.Length Sepal.Width Petal.Length Petal.Width   Species         val
+  1:          4.3         3.0          1.1         0.1    setosa  0.81876799
+  2:          4.4         3.2          1.3         0.2    setosa -0.47021429
+  3:          4.4         3.0          1.3         0.2    setosa  1.49644152
+  4:          4.4         2.9          1.4         0.2    setosa -1.85413384
+  5:          4.5         2.3          1.3         0.3    setosa -1.30264157
+ ---                                                                        
+146:          7.7         3.8          6.7         2.2 virginica -0.97776153
+147:          7.7         3.0          6.1         2.3 virginica -0.43606655
+148:          7.7         2.8          6.7         2.0 virginica  1.16575671
+149:          7.7         2.6          6.9         2.3 virginica  1.16095591
+150:          7.9         3.8          6.4         2.0 virginica -0.05739282
+     group
+  1:     a
+  2:     b
+  3:     b
+  4:     a
+  5:     b
+ ---      
+146:     x
+147:     e
+148:     e
+149:     x
+150:     e
+> str(idt)
+Classes ‘data.table’ and 'data.frame':	150 obs. of  7 variables:
+ $ Sepal.Length: num  4.3 4.4 4.4 4.4 4.5 4.6 4.6 4.6 4.6 4.7 ...
+ $ Sepal.Width : num  3 3.2 3 2.9 2.3 3.6 3.4 3.2 3.1 3.2 ...
+ $ Petal.Length: num  1.1 1.3 1.3 1.4 1.3 1 1.4 1.4 1.5 1.3 ...
+ $ Petal.Width : num  0.1 0.2 0.2 0.2 0.3 0.2 0.3 0.2 0.2 0.2 ...
+ $ Species     : Factor w/ 3 levels "setosa","versicolor",..: 1 1 1 1 1 1 1 1 1 1 ...
+ $ val         : num  0.819 -0.47 1.496 -1.854 -1.303 ...
+ $ group       : chr  "a" "b" "b" "a" ...
+ - attr(*, ".internal.selfref")=<externalptr> 
+> idt[J("d"), on = "group"]
+   Sepal.Length Sepal.Width Petal.Length Petal.Width Species val group
+1:           NA          NA           NA          NA      NA  NA     d
+> idt["x", on = "group"]
+    Sepal.Length Sepal.Width Petal.Length Petal.Width    Species          val
+ 1:          4.9         2.5          4.5         1.7  virginica -0.551557853
+ 2:          5.0         2.3          3.3         1.0 versicolor  0.409649231
+ 3:          5.1         2.5          3.0         1.1 versicolor -0.512049103
+ 4:          5.5         2.6          4.4         1.2 versicolor  0.391806030
+ 5:          5.6         2.7          4.2         1.3 versicolor -1.610240564
+ 6:          5.7         3.0          4.2         1.2 versicolor -1.242094801
+ 7:          5.7         2.9          4.2         1.3 versicolor -0.611237643
+ 8:          5.7         2.8          4.1         1.3 versicolor  0.116088268
+ 9:          5.7         2.5          5.0         2.0  virginica -0.407840867
+10:          5.8         2.8          5.1         2.4  virginica  0.137048129
+11:          5.8         2.7          5.1         1.9  virginica  0.458012309
+12:          5.8         2.6          4.0         1.2 versicolor  0.994659583
+13:          6.0         2.2          5.0         1.5  virginica  0.979264918
+14:          6.1         3.0          4.6         1.4 versicolor  0.539471445
+15:          6.2         2.9          4.3         1.3 versicolor -1.660694635
+16:          6.3         3.3          6.0         2.5  virginica  1.127128446
+17:          6.3         2.9          5.6         1.8  virginica -1.749801870
+18:          6.4         3.2          5.3         2.3  virginica  0.779357700
+19:          6.4         2.7          5.3         1.9  virginica -1.255634218
+20:          6.5         3.2          5.1         2.0  virginica -1.240720259
+21:          6.5         3.0          5.8         2.2  virginica  0.593009206
+22:          6.5         3.0          5.5         1.8  virginica -1.585812245
+23:          6.7         2.5          5.8         1.8  virginica -2.348402390
+24:          6.8         3.0          5.5         2.1  virginica -1.613466402
+25:          7.1         3.0          5.9         2.1  virginica -1.273249174
+26:          7.2         3.6          6.1         2.5  virginica  0.970099845
+27:          7.3         2.9          6.3         1.8  virginica  0.005525608
+28:          7.6         3.0          6.6         2.1  virginica  1.209454121
+29:          7.7         3.8          6.7         2.2  virginica -0.977761533
+30:          7.7         2.6          6.9         2.3  virginica  1.160955912
+    Sepal.Length Sepal.Width Petal.Length Petal.Width    Species          val
+    group
+ 1:     x
+ 2:     x
+ 3:     x
+ 4:     x
+ 5:     x
+ 6:     x
+ 7:     x
+ 8:     x
+ 9:     x
+10:     x
+11:     x
+12:     x
+13:     x
+14:     x
+15:     x
+16:     x
+17:     x
+18:     x
+19:     x
+20:     x
+21:     x
+22:     x
+23:     x
+24:     x
+25:     x
+26:     x
+27:     x
+28:     x
+29:     x
+30:     x
+    group
+> setindex(idt, group) # not necessary
+> indices(idt)
+[1] "group"
+> ## binary search in data.table should be faster for large
+> ## datasets but is slower here :-(
+> microbenchmark(df = idt[idt$group == "d", ],
++                dt = idt["d", on = "group"])
+Unit: microseconds
+ expr     min       lq      mean   median        uq      max neval
+   df 201.504 227.4445  285.6382 240.4935  281.5575 1639.344   100
+   dt 835.829 868.1220 1072.4026 930.7925 1098.4280 3686.892   100
+> setkey(idt, Species)
+> idt
+     Sepal.Length Sepal.Width Petal.Length Petal.Width   Species         val
+  1:          4.3         3.0          1.1         0.1    setosa  0.81876799
+  2:          4.4         3.2          1.3         0.2    setosa -0.47021429
+  3:          4.4         3.0          1.3         0.2    setosa  1.49644152
+  4:          4.4         2.9          1.4         0.2    setosa -1.85413384
+  5:          4.5         2.3          1.3         0.3    setosa -1.30264157
+ ---                                                                        
+146:          7.7         3.8          6.7         2.2 virginica -0.97776153
+147:          7.7         3.0          6.1         2.3 virginica -0.43606655
+148:          7.7         2.8          6.7         2.0 virginica  1.16575671
+149:          7.7         2.6          6.9         2.3 virginica  1.16095591
+150:          7.9         3.8          6.4         2.0 virginica -0.05739282
+     group
+  1:     a
+  2:     b
+  3:     b
+  4:     a
+  5:     b
+ ---      
+146:     x
+147:     e
+148:     e
+149:     x
+150:     e
+> ## after setting key -- physical sorting
+> idt[!J("setosa"), ]
+     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species          val
+  1:          4.9         2.4          3.3         1.0 versicolor -1.362667125
+  2:          5.0         2.3          3.3         1.0 versicolor  0.409649231
+  3:          5.0         2.0          3.5         1.0 versicolor -0.026394012
+  4:          5.1         2.5          3.0         1.1 versicolor -0.512049103
+  5:          5.2         2.7          3.9         1.4 versicolor -0.293338174
+  6:          5.4         3.0          4.5         1.5 versicolor -0.881128636
+  7:          5.5         2.6          4.4         1.2 versicolor  0.391806030
+  8:          5.5         2.5          4.0         1.3 versicolor -0.273496407
+  9:          5.5         2.4          3.8         1.1 versicolor -1.792275629
+ 10:          5.5         2.4          3.7         1.0 versicolor  0.050986259
+ 11:          5.5         2.3          4.0         1.3 versicolor -0.757568796
+ 12:          5.6         3.0          4.5         1.5 versicolor  1.368278874
+ 13:          5.6         3.0          4.1         1.3 versicolor  0.304569624
+ 14:          5.6         2.9          3.6         1.3 versicolor  1.058928799
+ 15:          5.6         2.7          4.2         1.3 versicolor -1.610240564
+ 16:          5.6         2.5          3.9         1.1 versicolor  0.657637462
+ 17:          5.7         3.0          4.2         1.2 versicolor -1.242094801
+ 18:          5.7         2.9          4.2         1.3 versicolor -0.611237643
+ 19:          5.7         2.8          4.5         1.3 versicolor -0.418429014
+ 20:          5.7         2.8          4.1         1.3 versicolor  0.116088268
+ 21:          5.7         2.6          3.5         1.0 versicolor  2.099457159
+ 22:          5.8         2.7          4.1         1.0 versicolor  0.338602711
+ 23:          5.8         2.7          3.9         1.2 versicolor  0.514734739
+ 24:          5.8         2.6          4.0         1.2 versicolor  0.994659583
+ 25:          5.9         3.2          4.8         1.8 versicolor -0.221098785
+ 26:          5.9         3.0          4.2         1.5 versicolor -0.730644933
+ 27:          6.0         3.4          4.5         1.6 versicolor -1.648000312
+ 28:          6.0         2.9          4.5         1.5 versicolor  0.546969754
+ 29:          6.0         2.7          5.1         1.6 versicolor  1.765573643
+ 30:          6.0         2.2          4.0         1.0 versicolor -0.889101404
+ 31:          6.1         3.0          4.6         1.4 versicolor  0.539471445
+ 32:          6.1         2.9          4.7         1.4 versicolor -0.386486599
+ 33:          6.1         2.8          4.0         1.3 versicolor -0.195406044
+ 34:          6.1         2.8          4.7         1.2 versicolor -1.000151211
+ 35:          6.2         2.9          4.3         1.3 versicolor -1.660694635
+ 36:          6.2         2.2          4.5         1.5 versicolor -0.300128296
+ 37:          6.3         3.3          4.7         1.6 versicolor  1.018884564
+ 38:          6.3         2.5          4.9         1.5 versicolor  1.380854346
+ 39:          6.3         2.3          4.4         1.3 versicolor  0.412548975
+ 40:          6.4         3.2          4.5         1.5 versicolor  0.917583664
+ 41:          6.4         2.9          4.3         1.3 versicolor -0.726985085
+ 42:          6.5         2.8          4.6         1.5 versicolor  1.072973158
+ 43:          6.6         3.0          4.4         1.4 versicolor  0.925793323
+ 44:          6.6         2.9          4.6         1.3 versicolor -0.520336149
+ 45:          6.7         3.1          4.4         1.4 versicolor  0.770593943
+ 46:          6.7         3.1          4.7         1.5 versicolor -1.041925985
+ 47:          6.7         3.0          5.0         1.7 versicolor -1.912804742
+ 48:          6.8         2.8          4.8         1.4 versicolor -0.278987509
+ 49:          6.9         3.1          4.9         1.5 versicolor -1.292647583
+ 50:          7.0         3.2          4.7         1.4 versicolor  0.236948120
+ 51:          4.9         2.5          4.5         1.7  virginica -0.551557853
+ 52:          5.6         2.8          4.9         2.0  virginica -0.310350002
+ 53:          5.7         2.5          5.0         2.0  virginica -0.407840867
+ 54:          5.8         2.8          5.1         2.4  virginica  0.137048129
+ 55:          5.8         2.7          5.1         1.9  virginica  0.458012309
+ 56:          5.8         2.7          5.1         1.9  virginica -0.954462152
+ 57:          5.9         3.0          5.1         1.8  virginica  0.650676181
+ 58:          6.0         3.0          4.8         1.8  virginica  2.032226089
+ 59:          6.0         2.2          5.0         1.5  virginica  0.979264918
+ 60:          6.1         3.0          4.9         1.8  virginica -0.385194453
+ 61:          6.1         2.6          5.6         1.4  virginica -0.629211985
+ 62:          6.2         3.4          5.4         2.3  virginica -2.156375233
+ 63:          6.2         2.8          4.8         1.8  virginica  1.877310551
+ 64:          6.3         3.4          5.6         2.4  virginica -0.459231457
+ 65:          6.3         3.3          6.0         2.5  virginica  1.127128446
+ 66:          6.3         2.9          5.6         1.8  virginica -1.749801870
+ 67:          6.3         2.8          5.1         1.5  virginica  0.203243661
+ 68:          6.3         2.7          4.9         1.8  virginica  1.006935426
+ 69:          6.3         2.5          5.0         1.9  virginica -0.532702528
+ 70:          6.4         3.2          5.3         2.3  virginica  0.779357700
+ 71:          6.4         3.1          5.5         1.8  virginica -1.509218089
+ 72:          6.4         2.8          5.6         2.1  virginica -0.160134118
+ 73:          6.4         2.8          5.6         2.2  virginica -0.636926722
+ 74:          6.4         2.7          5.3         1.9  virginica -1.255634218
+ 75:          6.5         3.2          5.1         2.0  virginica -1.240720259
+ 76:          6.5         3.0          5.8         2.2  virginica  0.593009206
+ 77:          6.5         3.0          5.5         1.8  virginica -1.585812245
+ 78:          6.5         3.0          5.2         2.0  virginica  0.123208291
+ 79:          6.7         3.3          5.7         2.1  virginica -0.200496941
+ 80:          6.7         3.3          5.7         2.5  virginica  1.010254570
+ 81:          6.7         3.1          5.6         2.4  virginica  2.691336260
+ 82:          6.7         3.0          5.2         2.3  virginica -2.036103279
+ 83:          6.7         2.5          5.8         1.8  virginica -2.348402390
+ 84:          6.8         3.2          5.9         2.3  virginica -1.060573969
+ 85:          6.8         3.0          5.5         2.1  virginica -1.613466402
+ 86:          6.9         3.2          5.7         2.3  virginica -0.064197902
+ 87:          6.9         3.1          5.4         2.1  virginica  1.831096763
+ 88:          6.9         3.1          5.1         2.3  virginica  0.403639227
+ 89:          7.1         3.0          5.9         2.1  virginica -1.273249174
+ 90:          7.2         3.6          6.1         2.5  virginica  0.970099845
+ 91:          7.2         3.2          6.0         1.8  virginica  0.919742292
+ 92:          7.2         3.0          5.8         1.6  virginica -1.593304823
+ 93:          7.3         2.9          6.3         1.8  virginica  0.005525608
+ 94:          7.4         2.8          6.1         1.9  virginica -0.182300046
+ 95:          7.6         3.0          6.6         2.1  virginica  1.209454121
+ 96:          7.7         3.8          6.7         2.2  virginica -0.977761533
+ 97:          7.7         3.0          6.1         2.3  virginica -0.436066551
+ 98:          7.7         2.8          6.7         2.0  virginica  1.165756715
+ 99:          7.7         2.6          6.9         2.3  virginica  1.160955912
+100:          7.9         3.8          6.4         2.0  virginica -0.057392822
+     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species          val
+     group
+  1:     b
+  2:     x
+  3:     c
+  4:     x
+  5:     b
+  6:     c
+  7:     x
+  8:     c
+  9:     c
+ 10:     c
+ 11:     b
+ 12:     c
+ 13:     c
+ 14:     c
+ 15:     x
+ 16:     c
+ 17:     x
+ 18:     x
+ 19:     b
+ 20:     x
+ 21:     c
+ 22:     c
+ 23:     c
+ 24:     x
+ 25:     c
+ 26:     c
+ 27:     c
+ 28:     c
+ 29:     c
+ 30:     c
+ 31:     x
+ 32:     c
+ 33:     c
+ 34:     c
+ 35:     x
+ 36:     c
+ 37:     b
+ 38:     c
+ 39:     c
+ 40:     b
+ 41:     c
+ 42:     b
+ 43:     c
+ 44:     b
+ 45:     c
+ 46:     c
+ 47:     c
+ 48:     c
+ 49:     b
+ 50:     b
+ 51:     x
+ 52:     e
+ 53:     x
+ 54:     x
+ 55:     x
+ 56:     e
+ 57:     e
+ 58:     e
+ 59:     x
+ 60:     e
+ 61:     e
+ 62:     e
+ 63:     e
+ 64:     e
+ 65:     x
+ 66:     x
+ 67:     e
+ 68:     e
+ 69:     e
+ 70:     x
+ 71:     e
+ 72:     e
+ 73:     e
+ 74:     x
+ 75:     x
+ 76:     x
+ 77:     x
+ 78:     e
+ 79:     e
+ 80:     e
+ 81:     e
+ 82:     e
+ 83:     x
+ 84:     e
+ 85:     x
+ 86:     e
+ 87:     e
+ 88:     e
+ 89:     x
+ 90:     x
+ 91:     e
+ 92:     e
+ 93:     x
+ 94:     e
+ 95:     x
+ 96:     x
+ 97:     e
+ 98:     e
+ 99:     x
+100:     e
+     group
+> ## add mean by species to original dataset
+> idt[, gm := mean(Sepal.Length), by = Species]
+> idt
+     Sepal.Length Sepal.Width Petal.Length Petal.Width   Species         val
+  1:          4.3         3.0          1.1         0.1    setosa  0.81876799
+  2:          4.4         3.2          1.3         0.2    setosa -0.47021429
+  3:          4.4         3.0          1.3         0.2    setosa  1.49644152
+  4:          4.4         2.9          1.4         0.2    setosa -1.85413384
+  5:          4.5         2.3          1.3         0.3    setosa -1.30264157
+ ---                                                                        
+146:          7.7         3.8          6.7         2.2 virginica -0.97776153
+147:          7.7         3.0          6.1         2.3 virginica -0.43606655
+148:          7.7         2.8          6.7         2.0 virginica  1.16575671
+149:          7.7         2.6          6.9         2.3 virginica  1.16095591
+150:          7.9         3.8          6.4         2.0 virginica -0.05739282
+     group    gm
+  1:     a 5.006
+  2:     b 5.006
+  3:     b 5.006
+  4:     a 5.006
+  5:     b 5.006
+ ---            
+146:     x 6.588
+147:     e 6.588
+148:     e 6.588
+149:     x 6.588
+150:     e 6.588
+> idt1[, lapply(.SD, mean), .SDcols = valcols]
+   Sepal.Length Sepal.Width Petal.Length Petal.Width
+1:     5.843333    3.057333        3.758    1.199333
+> idt1[, lapply(.SD, mean), .SDcols = valcols, by = Species]
+      Species Sepal.Length Sepal.Width Petal.Length Petal.Width
+1:     setosa        5.006       3.428        1.462       0.246
+2: versicolor        5.936       2.770        4.260       1.326
+3:  virginica        6.588       2.974        5.552       2.026
+> ## base R
+> with(iris, aggregate(Sepal.Length, by = list(Species), mean))
+     Group.1     x
+1     setosa 5.006
+2 versicolor 5.936
+3  virginica 6.588
+> ## create new object containing just the species means
+> idtm <- idt[, list(gm = mean(Sepal.Length)),
++             by = Species]
+> idtm
+      Species    gm
+1:     setosa 5.006
+2: versicolor 5.936
+3:  virginica 6.588
+> microbenchmark(df = with(iris, aggregate(Sepal.Length,
++                                          by = list(Species),
++                                          mean)),
++                dt = idt[, list(gm = mean(Sepal.Length)),
++                         by = Species])
+Unit: microseconds
+ expr     min      lq     mean  median       uq      max neval
+   df 770.979 812.630 944.0748 844.372 975.7795 2527.049   100
+   dt 459.005 487.184 559.7560 527.791 579.9440 1494.001   100
+> ## the same for species and group
+> ## .() is an abbreviation for list() in data.table
+> idt1 <- idt[, list(gm = mean(Sepal.Length)),
++       by = .(Species, group)]
+> idt1
+      Species group       gm
+1:     setosa     a 5.026667
+2:     setosa     b 4.975000
+3: versicolor     b 6.100000
+4: versicolor     x 5.640000
+5: versicolor     c 5.980000
+6:  virginica     x 6.560000
+7:  virginica     e 6.606667
+> idt[, list(gm = mean(Sepal.Length)), keyby = .(Species, group)]
+      Species group       gm
+1:     setosa     a 5.026667
+2:     setosa     b 4.975000
+3: versicolor     b 6.100000
+4: versicolor     c 5.980000
+5: versicolor     x 5.640000
+6:  virginica     e 6.606667
+7:  virginica     x 6.560000
+> ## without name
+> idt[,  mean(Sepal.Length), keyby = .(Species, group)]
+      Species group       V1
+1:     setosa     a 5.026667
+2:     setosa     b 4.975000
+3: versicolor     b 6.100000
+4: versicolor     c 5.980000
+5: versicolor     x 5.640000
+6:  virginica     e 6.606667
+7:  virginica     x 6.560000
+> ## show species mean ans species sum
+> idt[, list(gm = mean(Sepal.Length),
++            gs = sum(Sepal.Length)),
++     by = Species]
+      Species    gm    gs
+1:     setosa 5.006 250.3
+2: versicolor 5.936 296.8
+3:  virginica 6.588 329.4
+> ## add various variables
+> idt[, c("vat2", "sth") := .(runif(150), rnorm(150))]
+> idt
+     Sepal.Length Sepal.Width Petal.Length Petal.Width   Species         val
+  1:          4.3         3.0          1.1         0.1    setosa  0.81876799
+  2:          4.4         3.2          1.3         0.2    setosa -0.47021429
+  3:          4.4         3.0          1.3         0.2    setosa  1.49644152
+  4:          4.4         2.9          1.4         0.2    setosa -1.85413384
+  5:          4.5         2.3          1.3         0.3    setosa -1.30264157
+ ---                                                                        
+146:          7.7         3.8          6.7         2.2 virginica -0.97776153
+147:          7.7         3.0          6.1         2.3 virginica -0.43606655
+148:          7.7         2.8          6.7         2.0 virginica  1.16575671
+149:          7.7         2.6          6.9         2.3 virginica  1.16095591
+150:          7.9         3.8          6.4         2.0 virginica -0.05739282
+     group    gm      vat2         sth
+  1:     a 5.006 0.3686759  1.09888328
+  2:     b 5.006 0.3413240 -1.80203655
+  3:     b 5.006 0.4045398 -0.59915029
+  4:     a 5.006 0.7949419 -0.43821330
+  5:     b 5.006 0.6342956  1.34851646
+ ---                                  
+146:     x 6.588 0.7143246  0.06238319
+147:     e 6.588 0.2872884  1.21761125
+148:     e 6.588 0.4144428 -0.81689296
+149:     x 6.588 0.3837796 -0.83507237
+150:     e 6.588 0.1688215  0.64101592
+> ## remove it again
+> idt[, c("vat2", "sth") := NULL]
+> idt
+     Sepal.Length Sepal.Width Petal.Length Petal.Width   Species         val
+  1:          4.3         3.0          1.1         0.1    setosa  0.81876799
+  2:          4.4         3.2          1.3         0.2    setosa -0.47021429
+  3:          4.4         3.0          1.3         0.2    setosa  1.49644152
+  4:          4.4         2.9          1.4         0.2    setosa -1.85413384
+  5:          4.5         2.3          1.3         0.3    setosa -1.30264157
+ ---                                                                        
+146:          7.7         3.8          6.7         2.2 virginica -0.97776153
+147:          7.7         3.0          6.1         2.3 virginica -0.43606655
+148:          7.7         2.8          6.7         2.0 virginica  1.16575671
+149:          7.7         2.6          6.9         2.3 virginica  1.16095591
+150:          7.9         3.8          6.4         2.0 virginica -0.05739282
+     group    gm
+  1:     a 5.006
+  2:     b 5.006
+  3:     b 5.006
+  4:     a 5.006
+  5:     b 5.006
+ ---            
+146:     x 6.588
+147:     e 6.588
+148:     e 6.588
+149:     x 6.588
+150:     e 6.588
+> ##### questions
+> sp1 <- data.table(Species = unique(idt$Species), specid = 1:3,
++                   key = "Species")
+> sp1
+      Species specid
+1:     setosa      1
+2: versicolor      2
+3:  virginica      3
+> key(sp1)
+[1] "Species"
+> key(idt)
+[1] "Species"
+> stopifnot(key(sp1) == key(idt))
+> idt[sp1]
+     Sepal.Length Sepal.Width Petal.Length Petal.Width   Species         val
+  1:          4.3         3.0          1.1         0.1    setosa  0.81876799
+  2:          4.4         3.2          1.3         0.2    setosa -0.47021429
+  3:          4.4         3.0          1.3         0.2    setosa  1.49644152
+  4:          4.4         2.9          1.4         0.2    setosa -1.85413384
+  5:          4.5         2.3          1.3         0.3    setosa -1.30264157
+ ---                                                                        
+146:          7.7         3.8          6.7         2.2 virginica -0.97776153
+147:          7.7         3.0          6.1         2.3 virginica -0.43606655
+148:          7.7         2.8          6.7         2.0 virginica  1.16575671
+149:          7.7         2.6          6.9         2.3 virginica  1.16095591
+150:          7.9         3.8          6.4         2.0 virginica -0.05739282
+     group    gm specid
+  1:     a 5.006      1
+  2:     b 5.006      1
+  3:     b 5.006      1
+  4:     a 5.006      1
+  5:     b 5.006      1
+ ---                   
+146:     x 6.588      3
+147:     e 6.588      3
+148:     e 6.588      3
+149:     x 6.588      3
+150:     e 6.588      3
+> ### assign it
+> idt[sp1, specid := specid, on = key(sp1)]
+> q("no")
+
+Process R finished at Thu Jun 15 14:01:59 2017

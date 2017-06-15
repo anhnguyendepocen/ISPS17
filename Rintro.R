@@ -1,6 +1,6 @@
 ##### R-Script for catching up with R
 ##### Gerhard Nachtmann
-##### 20170612
+##### 20170612-13
 
 ### logical vector
 lv <- c(TRUE, TRUE, FALSE, rep(TRUE, 7))
