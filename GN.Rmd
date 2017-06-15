@@ -165,6 +165,8 @@ base R
 
 ggplot2
 
+http://www.cookbook-r.com/Graphs/
+
 ### data.table
 
 fread
