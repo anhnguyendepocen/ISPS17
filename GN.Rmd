@@ -7,8 +7,8 @@ output: html_document
 
 ## Catching up with R: Base R
 
-The code from our catch-up-session can be found in file `2017-06-12.R`,
-the transcript including in- and output is here: `2017-06-12.Rt`.
+The code from our catch-up-session can be found in file `Rintro.R`,
+the transcript including in- and output is here: `Rintro.Rt`.
 
 ### Intro
 
@@ -144,9 +144,7 @@ cs1 <- function(x){
 ```
 
 
-
 ### Your turn: own function in loop
-
 
 
 ### tidy data
@@ -159,13 +157,6 @@ http://blog.rstudio.org/2014/07/22/introducing-tidyr/
 
 with(x, aggregate(v, by = list(group), sum))
 
-### plotting
-
-base R
-
-ggplot2
-
-http://www.cookbook-r.com/Graphs/
 
 ### data.table
 
@@ -180,20 +171,31 @@ Binary search in `data.table`
 
 merge using `[`
 
-The code from our data.table session can be found in file `<date>.R`.
-As usual, the transcript including in- and output is here: `<date>.Rt`.
+The code from our data.table session can be found in file `datatable.R`.
+As usual, the transcript including in- and output is here: `datatable.Rt`.
 
 
 
 ## Reproducible research
 
+### plotting
+
+#### base R
+
+#### ggplot2
+
+http://ggplot2.tidyverse.org/
+
+"R Graphics Cookbook: Practical Recipes for Visualizing Data" by Winston Chang:
+http://www.cookbook-r.com/Graphs/
+
+http://r4ds.had.co.nz/data-visualisation.html
+
 The source from our reproducibility session can be found in file `Report.Rmd`.
 To create an HTML document as output, just use `make html` from the command line
 or use `rmarkdown::render('Report.Rmd', 'html_document')` within your R-session.
 For the latter ensure, that `Report.Rmd` is in your working directory. Otherwise
-you could use the path to this file within `render`, or set the working directory
-to the directory, where the source file is stored.
-As usual, the transcript including in- and output is here: `<date>.Rt`.
+you could use the path to this file within `render`, or set the working directory to the directory, where the source file is stored.
 
 
 Example of a presentation:
